@@ -1,19 +1,50 @@
-const INPUT: [i32; 145] = [1,0,0,3,1,1,2,3,1,3,4,3,1,5,0,3,2,1,13,19,2,9,19,23,1,23,6,27,1,13,27,31,1,31,10,35,1,9,35,39,1,39,9,43,2,6,43,47,1,47,5,51,2,10,51,55,1,6,55,59,2,13,59,63,2,13,63,67,1,6,67,71,1,71,5,75,2,75,6,79,1,5,79,83,1,83,6,87,2,10,87,91,1,9,91,95,1,6,95,99,1,99,6,103,2,103,9,107,2,107,10,111,1,5,111,115,1,115,6,119,2,6,119,123,1,10,123,127,1,127,5,131,1,131,2,135,1,135,5,0,99,2,0,14,0];
+#[aoc_generator(day2)]
+fn generator_input(input: &str) -> Vec<i32> {
+    input
+        .split(",")
+        .map(|a| a.parse::<i32>().unwrap())
+        .collect()
+}
+
+#[aoc(day2, part1)]
+fn part_one(input: &[i32]) -> i32 {
+
+	let mut input = input.to_vec();
+	input[1] = 12;
+	input[2] = 2;
+
+	let mut current_index = 0;
+
+	loop {
+		match process_index(current_index, &input) {
+			Opcode::Add(first, second, output) => input[output] = input[first] + input[second],
+			Opcode::Multiply(first, second, output) => input[output] = input[first] * input[second],
+			Opcode::Halt => break,
+			Opcode::Unspecified => panic!("Unspecified")
+		};
+		current_index += 4;
+	}
+
+	input[0]
+}
+
 const EXPECTED_OUTPUT: i32 = 19690720;
 
-fn main() {
+#[aoc(day2, part2)]
+fn part_two(input: &[i32]) -> i32 {
 	for pos1 in 0..99 {
 		for pos2 in 0..99 {
-			if try_pos(pos1, pos2) {
-				println!("result = {}", 100 * pos1 + pos2);
-				break;
+			if try_pos(pos1, pos2, input) {
+				return 100 * pos1 + pos2;
 			}
 		}
 	}
+
+	panic!("Not found!");
 }
 
-fn try_pos(pos1: i32, pos2: i32) -> bool {
-	let mut input = INPUT.clone();
+fn try_pos(pos1: i32, pos2: i32, input: &[i32]) -> bool {
+	let mut input = input.to_vec();
 	input[1] = pos1;
 	input[2] = pos2;
 
@@ -24,13 +55,14 @@ fn try_pos(pos1: i32, pos2: i32) -> bool {
 			Opcode::Add(first, second, output) => input[output] = input[first] + input[second],
 			Opcode::Multiply(first, second, output) => input[output] = input[first] * input[second],
 			Opcode::Halt => break,
-			Opcode::Unspecified => println!("Unspecified")
+			Opcode::Unspecified => panic!("Unspecified")
 		};
 		current_index += 4;
 	}
 
 	input[0] == EXPECTED_OUTPUT
 }
+
 
 fn process_index(index: usize, collection: &[i32]) -> Opcode {
 	let opcode = collection[index];
