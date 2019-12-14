@@ -13,19 +13,7 @@ fn part_one(input: &[i32]) -> i32 {
 	input[1] = 12;
 	input[2] = 2;
 
-	let mut current_index = 0;
-
-	loop {
-		match process_index(current_index, &input) {
-			Opcode::Add(first, second, output) => input[output] = input[first] + input[second],
-			Opcode::Multiply(first, second, output) => input[output] = input[first] * input[second],
-			Opcode::Halt => break,
-			Opcode::Unspecified => panic!("Unspecified")
-		};
-		current_index += 4;
-	}
-
-	input[0]
+	process_collection(&mut input)
 }
 
 const EXPECTED_OUTPUT: i32 = 19690720;
@@ -48,6 +36,10 @@ fn try_pos(pos1: i32, pos2: i32, input: &[i32]) -> bool {
 	input[1] = pos1;
 	input[2] = pos2;
 
+	process_collection(&mut input) == EXPECTED_OUTPUT
+}
+
+fn process_collection(input: &mut Vec<i32>) -> i32 {
 	let mut current_index = 0;
 
 	loop {
@@ -60,7 +52,7 @@ fn try_pos(pos1: i32, pos2: i32, input: &[i32]) -> bool {
 		current_index += 4;
 	}
 
-	input[0] == EXPECTED_OUTPUT
+	input[0]
 }
 
 
