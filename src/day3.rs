@@ -22,6 +22,19 @@ fn part_one(input: &[Wire]) -> i32 {
         .unwrap()
 }
 
+#[aoc(day3, part2)]
+fn part_two(input: &[Wire]) -> usize {
+    let first_wire = input[0].clone();
+    let second_wire = input[1].clone();
+
+    let intersections = first_wire.find_intersections(&second_wire);
+    intersections
+        .into_iter()
+        .map(|intersection| first_wire.steps_to(intersection) + second_wire.steps_to(intersection))
+        .min()
+        .unwrap()
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -34,5 +47,14 @@ U7,R6,D4,L4
 R8,U5,L5,D3"));
 
         assert_eq!(6, result);
+    }
+
+    #[test]
+    fn sample_two() {
+        let result = part_two(&generator("\
+U7,R6,D4,L4
+R8,U5,L5,D3"));
+
+        assert_eq!(30, result);
     }
 }

@@ -10,7 +10,8 @@ pub enum Instruction {
 
 #[derive(Debug, Clone)]
 pub struct Wire {
-    points: HashSet<(i32, i32)> 
+    points: HashSet<(i32, i32)>,
+    points_in_order: Vec<(i32, i32)>
 }
 
 impl Wire {
@@ -18,23 +19,31 @@ impl Wire {
         let instructions = parse_instructions(instructions);
 
         let mut points = HashSet::new();
+        let mut points_in_order = Vec::new();
         let mut last_vertex = (0,0);
         for instruction in instructions.into_iter() {
             let next_points = calculate_next_points(last_vertex, instruction);
             last_vertex = next_points.last().unwrap().clone();
             for point in next_points.into_iter() {
                 points.insert(point);
+                points_in_order.push(point);
             }
         }
 
-        Wire { points: points}
+        Wire { points: points, points_in_order: points_in_order}
     }
 
-    pub fn find_intersections(&self, wire: &Wire) -> Vec<(i32,i32)> {
+    pub fn find_intersections<'a>(&'a self, wire: &'a Wire) -> Vec<&'a (i32,i32)> {
         self.points
             .intersection(&wire.points)
-            .cloned()
             .collect()
+    }
+
+    pub fn steps_to(&self, point: &(i32,i32)) -> usize {
+        self.points_in_order
+            .iter()
+            .position(|v| v == point)
+            .unwrap() + 1
     }
 }
 
@@ -98,15 +107,5 @@ mod tests {
 
         assert_eq!(Instruction::Up(7), simple_instruction);
         assert_eq!(Instruction::Right(75), complex_instruction);    
-    }
-
-    #[test]
-    fn wire_intersections() {
-        let first_wire = Wire::from_str("R8,U5,L5,D3");
-        let second_wire = Wire::from_str("U7,R6,D4,L4");
-
-        let intersections = first_wire.find_intersections(&second_wire);
-
-        assert_eq!(vec![(6,5), (3,3)], intersections);
     }
 }
